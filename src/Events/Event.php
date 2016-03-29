@@ -30,24 +30,21 @@ abstract class Event extends PhpObj {
      */
     public function read(array $opts) {
         $version = trim(file_get_contents(__DIR__.'/../../VERSION'));
-        $version_key = 'https://github.com/LearningLocker/xAPI-Recipe-Emitter';
+        $version_key = 'https://github.com/JiscDev/xAPI-Recipe-Emitter';
         $opts['context_info']->{$version_key} = $version;
+ 
         return [
             'actor' => $this->readUser($opts, 'user'),
             'context' => [
                 'platform' => $opts['context_platform'],
-                'language' => $opts['context_lang'],
                 'extensions' => [
-                    $opts['context_ext_key'] => $opts['context_ext'],
-                    'http://lrs.learninglocker.net/define/extensions/info' => $opts['context_info'],
-                ],
-                'contextActivities' => [
-                    'grouping' => [
-                        $this->readApp($opts)
+                    'http://xapi.jisc.ac.uk/extensions/sessionId'=> [
+                        "sessionId"=>sesskey()
                     ],
-                    'category' => [
-                        $this->readSource($opts)
-                    ]
+                    'http://id.tincanapi.com/extension/ip-address'=> [
+                        "ip-address"=>$opts['context_ext']['ip']
+                    ],
+                    'http://lrs.learninglocker.net/define/extensions/info' => $opts['context_info'],
                 ],
             ],
             'timestamp' => $opts['time'],
@@ -59,7 +56,7 @@ abstract class Event extends PhpObj {
             'name' => $opts[$key.'_name'],
             'account' => [
                 'homePage' => $opts[$key.'_url'],
-                'name' => $opts[$key.'_id'],
+                'name' => $opts[$key.'_name'],
             ],
         ];
     }
@@ -87,11 +84,28 @@ abstract class Event extends PhpObj {
     }
 
     protected function readCourse($opts) {
-        return $this->readActivity($opts, 'course');
+
+       return $this->readActivity($opts, 'cource');
     }
 
     protected function readApp($opts) {
-        return $this->readActivity($opts, 'app');
+       $app = [
+            'id' => $opts['app_url'],
+            'definition' => [
+                'type' => "http://activitystrea.ms/schema/1.0/application",
+                'name' => [
+                    $opts['context_lang'] => $opts['app_name'],
+                ],
+                'description' => [
+                    $opts['context_lang'] => $opts['app_description'],
+                ],
+                'http://xapi.jisc.ac.uk/extensions/applicationType' => [
+                    'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                ],
+            ],
+        ];
+
+        return $app;
     }
 
     protected function readSource($opts) {
