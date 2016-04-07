@@ -2,7 +2,7 @@
 
 class AssignmentGraded extends Event {
     protected static $verb_display = [
-        'en' => 'recieved grade for'
+        'en' => 'evaluated'
     ];
 
     /**
@@ -15,7 +15,7 @@ class AssignmentGraded extends Event {
         $instructor = parent::read($opts)['actor'];
         $statement =  array_merge_recursive(parent::read($opts), [
             'verb' => [
-                'id' => 'http://adlnet.gov/expapi/verbs/scored',
+                'id' => 'http://www.tincanapi.co.uk/verbs/evaluated',
                 'display' => $this->readVerbDisplay($opts),
             ],
             'result' => [
@@ -28,14 +28,22 @@ class AssignmentGraded extends Event {
                 'completion' => $opts['grade_completed'],
                 'response' => $opts['grade_comment']
             ],
-            'object' => $this->readModule($opts),
+            'object' => $this->readActivity($opts),
             'context' => [
                 'contextActivities' => [
-                    'parent' => [
+                    'grouping' => [
                         $this->readCourse($opts),
                     ],
                 ],
-                'instructor' => $instructor
+                'instructor' => $instructor,
+                'extensions' => [
+                    'http://xapi.jisc.ac.uk/extensions/courseArea'=> [
+                        'id'=>$opts['course_ext']->url,
+                        'http://xapi.jisc.ac.uk/extensions/vle_mod_id'=>$opts['course_ext']->shortname
+                       
+                    ],
+                    
+                ],
             ],
         ]);
 
@@ -45,7 +53,7 @@ class AssignmentGraded extends Event {
             'name' => $opts['graded_user_name'],
             'account' => [
                 'homePage' => $opts['graded_user_url'],
-                'name' => $opts['graded_user_id'],
+                'name' =>$opts['graded_user_name'],
             ],
         ];
 
