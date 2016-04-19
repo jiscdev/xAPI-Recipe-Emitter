@@ -119,8 +119,10 @@ abstract class Event extends PhpObj {
                 'description' => [
                     $opts['context_lang'] => $opts['app_description'],
                 ],
-                'http://xapi.jisc.ac.uk/extensions/applicationType' => [
-                    'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                'extensions' => [
+                    'http://xapi.jisc.ac.uk/extensions/applicationType' => [
+                        'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                        ],
                 ],
             ],
         ];
@@ -147,10 +149,11 @@ abstract class Event extends PhpObj {
                 'description' => [
                     $opts['context_lang'] => $opts['module_description'],
                 ],
-                'http://xapi.jisc.ac.uk/extensions/applicationType' => [
-                    'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                'extensions' => [
+                    'http://xapi.jisc.ac.uk/extensions/applicationType' => [
+                        'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                        ],
                 ],
-
                  
             ],
         ];
