@@ -30,24 +30,21 @@ abstract class Event extends PhpObj {
      */
     public function read(array $opts) {
         $version = trim(file_get_contents(__DIR__.'/../../VERSION'));
-        $version_key = 'https://github.com/LearningLocker/xAPI-Recipe-Emitter';
+        $version_key = 'https://github.com/JiscDev/xAPI-Recipe-Emitter';
         $opts['context_info']->{$version_key} = $version;
+ 
         return [
             'actor' => $this->readUser($opts, 'user'),
             'context' => [
                 'platform' => $opts['context_platform'],
-                'language' => $opts['context_lang'],
                 'extensions' => [
-                    $opts['context_ext_key'] => $opts['context_ext'],
-                    'http://lrs.learninglocker.net/define/extensions/info' => $opts['context_info'],
-                ],
-                'contextActivities' => [
-                    'grouping' => [
-                        $this->readApp($opts)
+                    'http://xapi.jisc.ac.uk/extensions/sessionId'=> [
+                        "sessionId"=>sesskey()
                     ],
-                    'category' => [
-                        $this->readSource($opts)
-                    ]
+                    'http://id.tincanapi.com/extension/ip-address'=> [
+                        "ip-address"=>$opts['context_ext']['ip']
+                    ],
+                    'http://lrs.learninglocker.net/define/extensions/info' => $opts['context_info'],
                 ],
             ],
             'timestamp' => $opts['time'],
@@ -59,39 +56,78 @@ abstract class Event extends PhpObj {
             'name' => $opts[$key.'_name'],
             'account' => [
                 'homePage' => $opts[$key.'_url'],
-                'name' => $opts[$key.'_id'],
+                'name' => $opts[$key.'_name'],
             ],
         ];
     }
 
-    protected function readActivity(array $opts, $key) {
-        $activity = [
-            'id' => $opts[$key.'_url'],
-            'definition' => [
-                'type' => $opts[$key.'_type'],
-                'name' => [
-                    $opts['context_lang'] => $opts[$key.'_name'],
-                ],
-                'description' => [
-                    $opts['context_lang'] => $opts[$key.'_description'],
-                ],
+    protected function readActivity(array $opts) {
+            $activity=[
+                'id' => $opts['module_url'],
+                'definition' => [
+                    'type' => "http://adlnet.gov/expapi/activities/module",
+                    'name' => [
+                    $opts['context_lang'] => $opts['module_name'],
+                    ],
+                    'description' => [
+                        $opts['context_lang'] => $opts['module_description'],
+                        ],
+                        'http://xapi.jisc.ac.uk/extensions/applicationType' => [
+                        'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                    ],
+                    'extensions' => [
+                        'http://xapi.jisc.ac.uk/extensions/duedate'=> [
+                        "duedate"=>date('c', $opts['module_ext']->duedate)],
+                    ],  
             ],
         ];
 
-        if (isset($opts[$key.'_ext']) && isset($opts[$key.'_ext_key'])) {
-            $activity['definition']['extensions'] = [];
-            $activity['definition']['extensions'][$opts[$key.'_ext_key']] = $opts[$key.'_ext'];
-        }
+       
 
         return $activity;
     }
 
     protected function readCourse($opts) {
-        return $this->readActivity($opts, 'course');
+
+
+    $course = [
+            'id' => $opts['course_url'],
+            'definition' => [
+                'type' => $opts['course_type'],
+                'name' => [
+                    $opts['context_lang'] => $opts['course_name'],
+                ],
+                'description' => [
+                    $opts['context_lang'] => $opts['course_description'],
+                ],
+            ],
+        ];
+
+       
+
+        return $course;
     }
 
     protected function readApp($opts) {
-        return $this->readActivity($opts, 'app');
+       $app = [
+            'id' => $opts['app_url'],
+            'definition' => [
+                'type' => "http://activitystrea.ms/schema/1.0/application",
+                'name' => [
+                    $opts['context_lang'] => $opts['app_name'],
+                ],
+                'description' => [
+                    $opts['context_lang'] => $opts['app_description'],
+                ],
+                'extensions' => [
+                    'http://xapi.jisc.ac.uk/extensions/applicationType' => [
+                        'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                        ],
+                ],
+            ],
+        ];
+
+        return $app;
     }
 
     protected function readSource($opts) {
@@ -99,7 +135,30 @@ abstract class Event extends PhpObj {
     }
 
     protected function readModule($opts) {
-        return $this->readActivity($opts, 'module');
+
+        $o=print_r($opts,true);
+
+        echo("<script>console.log( 'Debug 1: ".$o."' );</script>");
+        $module = [
+            'id' => $opts['module_url'],
+            'definition' => [
+                'type' => $opts['module_type'],
+                'name' => [
+                    $opts['context_lang'] => $opts['module_name'],
+                ],
+                'description' => [
+                    $opts['context_lang'] => $opts['module_description'],
+                ],
+                'extensions' => [
+                    'http://xapi.jisc.ac.uk/extensions/applicationType' => [
+                        'type' => 'http://xapi.jisc.ac.uk/define/vle',
+                        ],
+                ],
+                 
+            ],
+        ];
+
+        return $module;
     }
 
     protected function readDiscussion($opts) {
