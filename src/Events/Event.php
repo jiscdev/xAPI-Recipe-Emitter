@@ -32,7 +32,7 @@ abstract class Event extends PhpObj {
         $version = trim(file_get_contents(__DIR__.'/../../VERSION'));
         $version_key = 'https://github.com/JiscDev/xAPI-Recipe-Emitter';
         $opts['context_info']->{$version_key} = $version;
- 
+
         return [
             'actor' => $this->readUser($opts, 'user'),
             'context' => [
@@ -41,9 +41,8 @@ abstract class Event extends PhpObj {
                     'http://xapi.jisc.ac.uk/extensions/sessionId'=> [
                         "sessionId"=>sesskey()
                     ],
-                    'http://id.tincanapi.com/extension/ip-address'=> [
-                        "ip-address"=>$opts['context_ext']['ip']
-                    ],
+                    'http://id.tincanapi.com/extension/ip-address'=>$opts['context_ext']['ip']
+                    ,
                     'http://lrs.learninglocker.net/define/extensions/info' => $opts['context_info'],
                 ],
             ],
@@ -78,11 +77,11 @@ abstract class Event extends PhpObj {
                     'extensions' => [
                         'http://xapi.jisc.ac.uk/extensions/duedate'=> [
                         "duedate"=>date('c', $opts['module_ext']->duedate)],
-                    ],  
+                    ],
             ],
         ];
 
-       
+
 
         return $activity;
     }
@@ -103,7 +102,7 @@ abstract class Event extends PhpObj {
             ],
         ];
 
-       
+
 
         return $course;
     }
@@ -154,7 +153,7 @@ abstract class Event extends PhpObj {
                         'type' => 'http://xapi.jisc.ac.uk/define/vle',
                         ],
                 ],
-                 
+
             ],
         ];
 
